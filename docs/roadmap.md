@@ -11,6 +11,6 @@
    gram bounds, active and total time budgets.
 6. **Wastage and shelf life across the week** — priced waste in the
    objective, `in = 0` past shelf life.
-7. **Nemlig price refresh** — cached, weekly, tiny volume.
+7. **Nemlig price refresh** — cached, weekly, tiny volume. *(done: `nemlig search|product|row|refresh`)*
 8. **Leftovers, variety, cuisine** — batch cooking, soft variety terms,
    cuisine coherence.

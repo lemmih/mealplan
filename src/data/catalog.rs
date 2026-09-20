@@ -2,7 +2,7 @@
 
 use crate::domain::{Nutrients, PackUnit, Product, Slot, Targets, Template};
 use anyhow::{Context, Result};
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use std::path::Path;
 
 /// Label kcal may deviate this much (relative) from macro-implied kcal.
@@ -37,7 +37,7 @@ pub enum CatalogError {
 /// Flat CSV row. The `csv` crate cannot deserialise `#[serde(flatten)]`
 /// numeric fields (they arrive as strings), so nutrients are listed
 /// explicitly here and folded into [`Product`] afterwards.
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 struct ProductRow {
     id: String,
     name: String,
@@ -47,6 +47,7 @@ struct ProductRow {
     pack_unit: PackUnit,
     grams_per_piece: Option<f64>,
     frida_id: Option<u32>,
+    nemlig_id: Option<u32>,
     kcal: f64,
     protein: f64,
     fat: f64,
@@ -77,6 +78,7 @@ impl From<ProductRow> for Product {
             pack_unit: r.pack_unit,
             grams_per_piece: r.grams_per_piece,
             frida_id: r.frida_id,
+            nemlig_id: r.nemlig_id,
             nutrients: Nutrients {
                 kcal: r.kcal,
                 protein: r.protein,
@@ -104,6 +106,51 @@ impl From<ProductRow> for Product {
             snapshot: r.snapshot,
         }
     }
+}
+
+impl From<&Product> for ProductRow {
+    fn from(p: &Product) -> Self {
+        ProductRow {
+            id: p.id.clone(),
+            name: p.name.clone(),
+            ean: p.ean.clone(),
+            price_dkk: p.price_dkk,
+            pack_qty: p.pack_qty,
+            pack_unit: p.pack_unit,
+            grams_per_piece: p.grams_per_piece,
+            frida_id: p.frida_id,
+            nemlig_id: p.nemlig_id,
+            kcal: p.nutrients.kcal,
+            protein: p.nutrients.protein,
+            fat: p.nutrients.fat,
+            satfat: p.nutrients.satfat,
+            carb: p.nutrients.carb,
+            sugar: p.nutrients.sugar,
+            fibre: p.nutrients.fibre,
+            salt: p.nutrients.salt,
+            edible_fraction: p.edible_fraction,
+            cook_yield: p.cook_yield,
+            shelf_life_days: p.shelf_life_days,
+            open_life_days: p.open_life_days,
+            slot: p.slot,
+            cuisine_tags: p.cuisine_tags.join(";"),
+            prep_min: p.prep_min,
+            cook_min: p.cook_min,
+            snapshot: p.snapshot.clone(),
+        }
+    }
+}
+
+/// Write products back to `catalog.csv` in the canonical column order.
+pub fn save_catalog(path: impl AsRef<Path>, products: &[Product]) -> Result<()> {
+    let path = path.as_ref();
+    let mut w =
+        csv::Writer::from_path(path).with_context(|| format!("writing {}", path.display()))?;
+    for p in products {
+        w.serialize(ProductRow::from(p))?;
+    }
+    w.flush()?;
+    Ok(())
 }
 
 /// Validate one product's invariants.

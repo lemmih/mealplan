@@ -37,6 +37,17 @@ cargo run --features mip -- plan --catalog data/samples/catalog.csv \
 gram per product. `plan` calls the enabled backend and prints the plan as
 JSON. Both backends are stubs for now and return "not implemented".
 
+Live data from nemlig.com (cached weekly under `data/cache/nemlig`):
+
+```bash
+cargo run -- nemlig search "kyllingebryst" --take 6
+cargo run -- nemlig product 5056391
+cargo run -- nemlig row 5056391 --id kyllingebryst --slot protein --cook-yield 0.75
+cargo run -- nemlig refresh --catalog data/samples/catalog.csv --dry-run
+```
+
+See [docs/data.md](docs/data.md) for the endpoints and the etiquette.
+
 ## Solver backends
 
 No backend is enabled by default.
