@@ -1,0 +1,28 @@
+[energy]
+kcal_min = 400
+kcal_max = 500
+
+# Shares of energy.
+[macros]
+protein_min = 0.25
+fat_max = 0.35
+carb_max = 0.50
+
+[limits]
+satfat_share_max = 0.10
+salt_g_max_meal = 2.0
+salt_g_max_day = 5.0
+
+# Minutes: [active, total].
+[time]
+weekday_dinner = [25, 45]
+weekend_dinner = [60, 120]
+lunch = [10, 15]
+breakfast = [5, 10]
+
+[variety]
+max_same_template_per_week = 2
+max_same_protein_per_week = 3
+
+[waste]
+price_weight = 1.0

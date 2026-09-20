@@ -1,0 +1,6 @@
+/target
+/data/raw
+/data/cache
+*.sqlite
+.env
+.DS_Store

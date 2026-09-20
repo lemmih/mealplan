@@ -1,0 +1,7 @@
+id,name,ean,price_dkk,pack_qty,pack_unit,grams_per_piece,frida_id,kcal,protein,fat,satfat,carb,sugar,fibre,salt,edible_fraction,cook_yield,shelf_life_days,open_life_days,slot,cuisine_tags,prep_min,cook_min,snapshot
+kyllingebryst,Kyllingebrystfilet,,44.95,550,g,,,106,22.5,1.5,0.4,0,0,0,0.15,1.0,0.75,5,,protein,any;asian;nordic,5,15,2026-09-20
+basmatiris,Basmatiris,,24.95,1000,g,,,350,8.0,0.8,0.2,77,0.3,1.5,0.01,1.0,2.8,365,,starch,any;asian;indian,2,12,2026-09-20
+broccoli,Broccoli,,12.95,1,pcs,400,,34,3.5,0.4,0.1,3.0,1.5,2.8,0.03,0.75,0.9,7,,veg,any,5,8,2026-09-20
+rapsolie,Rapsolie,,29.95,1000,ml,,,900,0,100,7.0,0,0,0,0,1.0,1.0,365,,fat,any,0,0,2026-09-20
+skyr_naturel,Skyr naturel,,22.95,1000,g,,,62,11.0,0.2,0.1,4.0,4.0,0,0.10,1.0,1.0,21,5,dairy,any;nordic,1,0,2026-09-20
+havregryn,Havregryn,,14.95,1000,g,,,370,13.0,7.0,1.2,58,1.0,10,0.01,1.0,1.0,365,,starch,any;nordic,2,5,2026-09-20

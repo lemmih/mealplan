@@ -1,0 +1,36 @@
+# items = [min, max] distinct products in the slot
+# grams = [lo, hi] edible raw grams per product in the slot
+
+[[template]]
+name = "bowl"
+cuisine = "any"
+base_min = 5
+
+[template.slots.protein]
+items = [1, 1]
+grams = [100, 180]
+
+[template.slots.starch]
+items = [1, 1]
+grams = [60, 110]
+
+[template.slots.veg]
+items = [1, 2]
+grams = [100, 250]
+
+[template.slots.fat]
+items = [0, 1]
+grams = [5, 15]
+
+[[template]]
+name = "porridge"
+cuisine = "any"
+base_min = 2
+
+[template.slots.starch]
+items = [1, 1]
+grams = [50, 90]
+
+[template.slots.dairy]
+items = [1, 1]
+grams = [150, 300]
