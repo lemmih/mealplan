@@ -15,6 +15,7 @@ food. Empty cells mean `None` for optional columns.
 | `pack_unit` | `g` \| `ml` \| `pcs` | unit of `pack_qty`; `ml` is treated as grams |
 | `grams_per_piece` | float? | required when `pack_unit = pcs` |
 | `frida_id` | int? | Frida food id supplying the nutrients |
+| `nemlig_id` | int? | Nemlig product number; lets `nemlig refresh` update price and pack |
 | `kcal` | float | energy per 100 g |
 | `protein`, `fat`, `satfat`, `carb`, `sugar`, `fibre`, `salt` | float | grams per 100 g |
 | `edible_fraction` | float in (0, 1] | share of pack weight that is edible after trimming |
@@ -54,15 +55,48 @@ The `nutriments` object carries `energy-kcal_100g`, `proteins_100g`,
 `fiber_100g`, `salt_100g`. OFF data is crowd-sourced; keep the 25 % kcal
 sanity check.
 
-## Nemlig (prices and pack sizes)
+## Nemlig (prices, pack sizes, label nutrition)
 
-Nemlig is a single-page app. Its product JSON API is visible in browser
-devtools (search and product endpoints under `/webapi/`). Nemlig's
-`robots.txt` disallows crawlers, so:
+Nemlig is a single-page app. Three anonymous endpoints cover everything the
+catalog needs (implemented in `src/data/nemlig.rs`):
 
-- fetch only the products already in the catalog, never browse categories;
-- cache responses under `data/cache/` (git-ignored);
-- refresh at most weekly and record the date in `snapshot`.
+| Step | Endpoint | Notes |
+|------|----------|-------|
+| token | `GET https://www.nemlig.com/webapi/Token` | anonymous bearer, ~5 min lifetime |
+| search | `GET https://webapi.prod.knl.nemlig.it/searchgateway/api/search?query=…&take=N&skip=0&recipeCount=0&timestamp=0&timeslotUtc=0&deliveryZoneId=1&includeFavorites=0` | needs the bearer; `timestamp`/`timeslotUtc` are required but accept dummies |
+| product | `GET https://www.nemlig.com/{slug}-{id}?GetAsJson=1` | `HEAD /x-{id}` 301-redirects to the right slug |
 
-The Apify actor "nemlig-scraper" is an alternative that yields the same
-fields (name, price, quantity, EAN) without hand-rolling requests.
+The product JSON (`content[0]` with `TemplateName = productdetailspot`)
+carries `Price`, `UnitPriceCalc`/`UnitPriceLabel`, a free-text
+`Description` such as `280 g / Gårdkylling / Danske Familiegårde` (pack size
+is parsed from its first segment), `Labels`, `SaleBeforeLastSalesDate`
+(Nemlig's guaranteed remaining shelf life in days at delivery, capped at
+90 and 0 when unknown) and `DeclarationLabel`, an HTML table with the
+per-100 g (or per-100 ml) nutrition label. The structured `Declarations`
+block is always zero in practice. EAN codes are not exposed.
+
+Nemlig's `robots.txt` allows product pages; it only disallows `/?search=`,
+`/sitecore/`, PDFs and `/webapi/order/`. The client still keeps volume tiny:
+
+- every token, search, slug and product response is cached under
+  `data/cache/nemlig/` (git-ignored) for 7 days;
+- requests are spaced at least 750 ms apart;
+- `refresh` only touches products that already carry a `nemlig_id`.
+
+CLI:
+
+```bash
+mealplan nemlig search "skyr naturel" --take 5
+mealplan nemlig product 5056391
+mealplan nemlig row 5056391 --id kyllingebryst --slot protein --cook-yield 0.75 --prep-min 5 --cook-min 15
+mealplan nemlig refresh --catalog data/samples/catalog.csv [--dry-run]
+```
+
+`row` prints a ready catalog line with nutrition from the label (many fresh
+products have no label on Nemlig; fill those from Frida). `refresh` updates
+`price_dkk`, `pack_qty`/`pack_unit`, `shelf_life_days` and `snapshot` in
+place and reports label kcal that disagree with the catalog by more than
+5 % without changing them.
+
+The Apify actor "nemlig-scraper" remains an alternative if the endpoints
+above change.

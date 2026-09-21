@@ -68,6 +68,8 @@ pub struct Product {
     pub pack_unit: PackUnit,
     pub grams_per_piece: Option<f64>,
     pub frida_id: Option<u32>,
+    /// Nemlig product number, used by `mealplan nemlig refresh`.
+    pub nemlig_id: Option<u32>,
     #[serde(flatten)]
     pub nutrients: Nutrients,
     /// Share of the pack that is edible after trimming, in (0, 1].
